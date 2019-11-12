@@ -1,6 +1,6 @@
 # Dockerfile with tensorflow gpu support on python3, opencv3.3
 FROM jjanzic/docker-python3-opencv
-FROM tensorflow/tensorflow:1.15.0rc1-py3-jupyter
+FROM elswork/tensorflow-diy:armv7l
 RUN mkdir /home/models
 RUN pip install Pillow opencv-python contextlib2 Cython
 RUN pip install pycocotools
