@@ -2,8 +2,8 @@
 FROM elswork/tensorflow-diy:armv7l
 FROM sixsq/opencv-python
 RUN mkdir /home/models
-RUN pip install Pillow opencv-python contextlib2 Cython
-RUN apt-get update
+# RUN pip install Pillow opencv-python contextlib2 Cython
+# RUN apt-get update
 RUN apt-get install -y git libsm6 libxext6 libxrender-dev curl unzip x264
 
 COPY models /home/models
