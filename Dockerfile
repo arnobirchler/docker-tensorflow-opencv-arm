@@ -6,7 +6,7 @@ RUN apt-get update && \
       pkg-config libjpeg-dev libtiff5-dev libjasper-dev \
       libpng12-dev libavcodec-dev libavformat-dev libswscale-dev \
       libv4l-dev libxvidcore-dev libx264-dev python3-yaml \
-      python3-scipy python3-h5py git libsm6 libxext6 libxrender-dev curl unzip autoconf automake libtool && \
+      python3-scipy python3-h5py git curl unzip autoconf automake libtool && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
     
 # Keras Tensorflow
