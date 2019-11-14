@@ -1,21 +1,61 @@
 FROM armhf/debian
 
+RUN apt-get update
+
+#Install common tools
+RUN apt-get -q -y install --no-install-recommends git curl unzip
+
+#Install Python3.5
+RUN apt-get -q -y install --no-install-recommends build-essential \
+tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev \
+libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev \
+libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev 
+
+RUN curl -L -k https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz > Python-3.5.2.tgz
+RUN tar -zxvf Python-3.5.2.tgz
+RUN (cd Python-3.5.2 && ./configure --prefix=/usr/local/opt/python-3.5.2) 
+RUN (cd Python-3.5.2 && make)
+RUN (cd Python-3.5.2 && make install)
+RUN rm Python-3.5.2.tgz
+RUN rm Python-3.5.2/*  -rf
+
+RUN ln -s /usr/local/opt/python-3.5.2/bin/pydoc3.5 /usr/bin/pydoc3.5
+RUN ln -s /usr/local/opt/python-3.5.2/bin/python3.5 /usr/bin/python3.5
+RUN ln -s /usr/local/opt/python-3.5.2/bin/python3.5m /usr/bin/python3.5m
+RUN ln -s /usr/local/opt/python-3.5.2/bin/pyvenv-3.5 /usr/bin/pyvenv-3.5
+RUN ln -s /usr/local/opt/python-3.5.2/bin/pip3.5 /usr/bin/pip3.5
+
+RUN ln -s /usr/bin/python3.5 /usr/bin/python3
+RUN ln -s /usr/bin/python3.5 /usr/bin/python
+RUN ln -s /usr/bin/pip3.5 /usr/bin/pip3
+RUN ln -s /usr/bin/pip3.5 /usr/bin/pip
+ 
+# for protocbuf : autoconf automake libtool && \
+
+#clean install
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+#upgrade PIP
+RUN pip install --upgrade pip
+
 RUN apt-get update && \
-    apt-get -q -y install --no-install-recommends python3 \
-      python3-dev python3-pip build-essential cmake \
+    apt-get -q -y install --no-install-recommends \
+       build-essential cmake \
       pkg-config libjpeg-dev libtiff5-dev libjasper-dev \
       libpng12-dev libavcodec-dev libavformat-dev libswscale-dev \
-      libv4l-dev libxvidcore-dev libx264-dev python3-yaml \
-      python3-scipy python3-h5py git curl unzip autoconf automake libtool && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-    
+      libv4l-dev libxvidcore-dev libx264-dev libhdf5-dev \
+      python3-yaml python3-scipy python3-h5py
+
 # Keras Tensorflow
-RUN pip3 install keras
-ADD https://github.com/samjabrahams/tensorflow-on-raspberry-pi/releases/download/v1.0.0/tensorflow-1.0.0-cp34-cp34m-linux_armv7l.whl /tensorflow-1.0.0-cp34-cp34m-linux_armv7l.whl
-RUN pip3 install /tensorflow-1.0.0-cp34-cp34m-linux_armv7l.whl && rm /tensorflow-1.0.0-cp34-cp34m-linux_armv7l.whl
+#RUN pip3 install keras
+ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
+ENV CXXFLAGS="-std=c++11"
+ENV CFLAGS="-std=c99"
+RUN pip3 install certifi
+RUN pip3 install /tensorflow-1.14.0-cp35-none-linux_armv7l.whl && rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
 
 # OpenCV
-ENV OPENCV_VERSION="3.2.0"
+ENV OPENCV_VERSION="4.1.1"
 ENV OPENCV_DIR="/opt/opencv/"
 
 ADD https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.tar.gz ${OPENCV_DIR}
@@ -34,30 +74,30 @@ RUN mkdir /home/models
 COPY models /home/models
 
 #Install C++ Protocol Compiler
-RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.zip > protobuf.zip
-RUN mkdir /opt/protobuf
-RUN unzip protobuf.zip -d /opt/protobuf
-RUN rm protobuf.zip
-RUN (cd /opt/protobuf-3.9.1 && ./configure)
-RUN (cd /opt/protobuf-3.9.1 && make)
-RUN (cd /opt/protobuf-3.9.1 && make check)
-RUN (cd /opt/protobuf-3.9.1 && make install)
+#RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.zip > protobuf.zip
+#RUN mkdir /opt/protobuf
+#RUN unzip protobuf.zip -d /opt/protobuf
+#RUN rm protobuf.zip
+#RUN (cd /opt/protobuf-3.9.1 && ./configure)
+#RUN (cd /opt/protobuf-3.9.1 && make)
+#RUN (cd /opt/protobuf-3.9.1 && make check)
+#RUN (cd /opt/protobuf-3.9.1 && make install)
 
 #Build python runtime library
-RUN (cd /opt/protobuf-3.9.1/python && export LD_LIBRARY_PATH=../src/.libs)
-RUN (cd /opt/protobuf-3.9.1/python && python setup.py build --cpp_implementation)
-RUN (cd /opt/protobuf-3.9.1/python && python setup.py test --cpp_implementation)
-RUN (cd /opt/protobuf-3.9.1/python && python setup.py install --cpp_implementation)
-ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
-ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
-RUN (cd /opt/protobuf-3.9.1/python && ldconfig)
+#RUN (cd /opt/protobuf-3.9.1/python && export LD_LIBRARY_PATH=../src/.libs)
+#RUN (cd /opt/protobuf-3.9.1/python && python setup.py build --cpp_implementation)
+#RUN (cd /opt/protobuf-3.9.1/python && python setup.py test --cpp_implementation)
+#RUN (cd /opt/protobuf-3.9.1/python && python setup.py install --cpp_implementation)
+#ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
+#ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
+#RUN (cd /opt/protobuf-3.9.1/python && ldconfig)
 
 #Add env path
 ENV PYTHONPATH="${PYTHONPATH}:/home/models"
 ENV PYTHONPATH="${PYTHONPATH}:/home/models/research"
 ENV PYTHONPATH="${PYTHONPATH}:/home/models/research/slim"
 
-RUN (cd /home/models/research && protoc --python_out=. object_detection/protos/*)
+#RUN (cd /home/models/research && protoc --python_out=. object_detection/protos/*)
 
 EXPOSE 8888
 EXPOSE 6006
