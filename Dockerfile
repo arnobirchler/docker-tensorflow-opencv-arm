@@ -3,21 +3,17 @@ FROM armhf/debian
 RUN apt-get update
 
 #Install common tools
-RUN apt-get -q -y install --no-install-recommends git curl unzip
+RUN apt-get -q -y install --no-install-recommends git curl unzip openssl ca-certificates curl-devel zlib-devel
 
 #Install Python3.5
 RUN apt-get -q -y install --no-install-recommends build-essential \
 tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev \
 libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev \
 libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev 
-
+#TODO change path to /opt
 RUN curl -L -k https://www.python.org/ftp/python/3.5.2/Python-3.5.2.tgz > Python-3.5.2.tgz
 RUN tar -zxvf Python-3.5.2.tgz
-RUN (cd Python-3.5.2 && ./configure --prefix=/usr/local/opt/python-3.5.2) 
-RUN (cd Python-3.5.2 && make)
-RUN (cd Python-3.5.2 && make install)
-RUN rm Python-3.5.2.tgz
-RUN rm Python-3.5.2/*  -rf
+RUN (cd Python-3.5.2 && ./configure --prefix=/usr/local/opt/python-3.5.2 && make && install) 
 
 RUN ln -s /usr/local/opt/python-3.5.2/bin/pydoc3.5 /usr/bin/pydoc3.5
 RUN ln -s /usr/local/opt/python-3.5.2/bin/python3.5 /usr/bin/python3.5
@@ -29,11 +25,6 @@ RUN ln -s /usr/bin/python3.5 /usr/bin/python3
 RUN ln -s /usr/bin/python3.5 /usr/bin/python
 RUN ln -s /usr/bin/pip3.5 /usr/bin/pip3
 RUN ln -s /usr/bin/pip3.5 /usr/bin/pip
- 
-# for protocbuf : autoconf automake libtool && \
-
-#clean install
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 #upgrade PIP
 RUN pip install --upgrade pip
@@ -46,6 +37,12 @@ RUN apt-get update && \
       libv4l-dev libxvidcore-dev libx264-dev libhdf5-dev \
       python3-yaml python3-scipy python3-h5py
 
+#Cmake
+RUN curl -L -k https://cmake.org/files/v3.5/cmake-3.5.1.tar.gz > cmake-3.15.5.tar.gz
+RUN tar -xf cmake-3.5.1.tar.gz
+RUN (cd cmake-3.5.1 && ./bootstrap --system-curl)
+RUN (cd cmake-3.5.1 && make && make install)
+
 # Keras Tensorflow
 #RUN pip3 install keras
 ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
@@ -55,29 +52,22 @@ RUN pip3 install certifi
 RUN pip3 install /tensorflow-1.14.0-cp35-none-linux_armv7l.whl && rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
 
 # OpenCV
-ENV OPENCV_VERSION="4.1.1"
-ENV OPENCV_DIR="/opt/opencv/"
-
-ADD https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.tar.gz ${OPENCV_DIR}
-
-RUN cd ${OPENCV_DIR} && \
-    tar -xzf ${OPENCV_VERSION}.tar.gz && \
-    rm ${OPENCV_VERSION}.tar.gz && \
-    mkdir ${OPENCV_DIR}opencv-${OPENCV_VERSION}/build && \
-    cd ${OPENCV_DIR}opencv-${OPENCV_VERSION}/build && \
-    cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local .. && make -j4 && make install && \
-    mv /usr/local/lib/python3.4/dist-packages/cv2.cpython-34m.so /usr/local/lib/python3.4/dist-packages/cv2.so && \
-    rm -rf ${OPENCV_DIR}
+RUN apt-get -q -y install --no-install-recommends libgtk-3-dev libcanberra-gtk* libatlas-base-dev gfortran
+RUN curl -L -k https://github.com/opencv/opencv/archive/4.0.0.zip > opencv.zip
+RUN curl -L -k https://github.com/opencv/opencv_contrib/archive/4.0.0.zip > opencv_contrib.zip
+RUN unzip opencv.zip -d /opt/opencv  && unzip opencv_contrib.zip -d /opt/opencv_contrib
+RUN mkdir /opt/opencv/build
+RUN cd /opt/opencv/build && \
+        cmake -D CMAKE_BUILD_TYPE=RELEASE     -D CMAKE_INSTALL_PREFIX=/usr/local     -D OPENCV_EXTRA_MODULES_PATH=/opt/opencv_contrib/modules     -D ENABLE_NEON=ON     -D ENABLE_VFPV3=ON     -D BUILD_TESTS=OFF     -D OPENCV_ENABLE_NONFREE=ON     -D INSTALL_PYTHON_EXAMPLES=OFF     -D BUILD_EXAMPLES=OFF -D PYTHON3_EXECUTABLE=/usr/bin/python .. && \
+        make -j4 && \
+        make install && \
+        ldconfig 
    
-# models
-RUN mkdir /home/models
-COPY models /home/models
-
+# for protocbuf : autoconf automake libtool && \
 #Install C++ Protocol Compiler
 #RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.zip > protobuf.zip
 #RUN mkdir /opt/protobuf
 #RUN unzip protobuf.zip -d /opt/protobuf
-#RUN rm protobuf.zip
 #RUN (cd /opt/protobuf-3.9.1 && ./configure)
 #RUN (cd /opt/protobuf-3.9.1 && make)
 #RUN (cd /opt/protobuf-3.9.1 && make check)
@@ -92,12 +82,22 @@ COPY models /home/models
 #ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
 #RUN (cd /opt/protobuf-3.9.1/python && ldconfig)
 
+# models
+RUN mkdir /home/models
+COPY models /home/models
 #Add env path
 ENV PYTHONPATH="${PYTHONPATH}:/home/models"
 ENV PYTHONPATH="${PYTHONPATH}:/home/models/research"
 ENV PYTHONPATH="${PYTHONPATH}:/home/models/research/slim"
 
 #RUN (cd /home/models/research && protoc --python_out=. object_detection/protos/*)
+
+#clean install
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN rm opencv.zip && rm opencv_contrib.zip
+RUN rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
+RUN rm Python-3.5.2.tgz
+RUN rm protobuf.zip
 
 EXPOSE 8888
 EXPOSE 6006
