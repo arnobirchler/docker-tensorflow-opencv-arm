@@ -46,8 +46,8 @@ RUN (cd cmake-3.5.1 && ./bootstrap)
 RUN (cd cmake-3.5.1 && make && make install)
 
 # Keras Tensorflow
-RUN echo "[global]" >> /etc/pip.config
-RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.config
+RUN echo "[global]" >> /etc/pip.conf
+RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
 RUN pip install tensorflow
 #RUN pip3 install keras
 #ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
