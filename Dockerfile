@@ -46,10 +46,11 @@ RUN (cd cmake-3.5.1 && ./bootstrap)
 RUN (cd cmake-3.5.1 && make && make install)
 
 # Keras Tensorflow
-RUN echo "[global]" >> /etc/pip.conf
-RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
 ENV CXXFLAGS="-std=c++11"
 ENV CFLAGS="-std=c99"
+RUN pip install numpy
+RUN echo "[global]" >> /etc/pip.conf
+RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
 RUN pip install certifi tensorflow
 
 # OpenCV
