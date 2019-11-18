@@ -46,12 +46,17 @@ RUN (cd cmake-3.5.1 && ./bootstrap)
 RUN (cd cmake-3.5.1 && make && make install)
 
 # Keras Tensorflow
+RUN echo "[global]" >> /etc/pip.config
+RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.config
+RUN pip install tensorflow
 #RUN pip3 install keras
-ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
-ENV CXXFLAGS="-std=c++11"
-ENV CFLAGS="-std=c99"
-RUN pip3 install certifi
-RUN pip3 install /tensorflow-1.14.0-cp35-none-linux_armv7l.whl && rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
+#ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
+#ENV CXXFLAGS="-std=c++11"
+#ENV CFLAGS="-std=c99"
+#RUN pip3 install certifi
+#RUN pip3 install /tensorflow-1.14.0-cp35-none-linux_armv7l.whl && rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
+
+
 
 # OpenCV
 RUN apt-get -q -y install --no-install-recommends libgtk-3-dev libcanberra-gtk* libatlas-base-dev gfortran
@@ -80,6 +85,9 @@ RUN ( cd /opt/opencv/build && cmake -D CMAKE_BUILD_TYPE=RELEASE \
 RUN ( cd /opt/opencv/build && make -j4 && \
         make install && \
         ldconfig )
+RUN python3.5 /usr/local/python/setup.py config
+RUN python3.5 /usr/local/python/setup.py develop
+
    
 # for protocbuf : autoconf automake libtool && \
 #Install C++ Protocol Compiler
@@ -113,7 +121,6 @@ ENV PYTHONPATH="${PYTHONPATH}:/home/models/research/slim"
 #clean install
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN rm opencv.zip && rm opencv_contrib.zip
-RUN rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
 RUN rm Python-3.5.2.tgz
 RUN rm protobuf.zip
 
