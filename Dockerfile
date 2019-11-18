@@ -48,15 +48,9 @@ RUN (cd cmake-3.5.1 && make && make install)
 # Keras Tensorflow
 RUN echo "[global]" >> /etc/pip.conf
 RUN echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
-RUN pip install tensorflow
-#RUN pip3 install keras
-#ADD https://github.com/lhelontra/tensorflow-on-arm/releases/download/v1.14.0-buster/tensorflow-1.14.0-cp35-none-linux_armv7l.whl /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
-#ENV CXXFLAGS="-std=c++11"
-#ENV CFLAGS="-std=c99"
-#RUN pip3 install certifi
-#RUN pip3 install /tensorflow-1.14.0-cp35-none-linux_armv7l.whl && rm /tensorflow-1.14.0-cp35-none-linux_armv7l.whl
-
-
+ENV CXXFLAGS="-std=c++11"
+ENV CFLAGS="-std=c99"
+RUN pip install certifi tensorflow
 
 # OpenCV
 RUN apt-get -q -y install --no-install-recommends libgtk-3-dev libcanberra-gtk* libatlas-base-dev gfortran
