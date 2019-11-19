@@ -34,7 +34,7 @@ RUN ln -s /usr/local/opt/python-3.5.2/bin/pydoc3.5 /usr/bin/pydoc3.5 && \
 ENV LD_LIBRARY_PATH="/usr/local/opt/python-3.5.2/lib"
 
 #upgrade PIP
-RUN pip install --upgrade pip
+RUN pip3 install --upgrade pip
 
 #Cmake
 RUN curl -L -k https://cmake.org/files/v3.5/cmake-3.5.1.tar.gz > cmake-3.5.1.tar.gz && tar -xf cmake-3.5.1.tar.gz && rm cmake-3.5.1.tar.gz && \
@@ -43,7 +43,7 @@ RUN curl -L -k https://cmake.org/files/v3.5/cmake-3.5.1.tar.gz > cmake-3.5.1.tar
 # Keras Tensorflow
 ENV CXXFLAGS="-std=c++11"
 ENV CFLAGS="-std=c99"
-RUN pip install numpy pyzmq kiwisolver pillow && echo "[global]" >> /etc/pip.conf && echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && pip install certifi tensorflow SimpleWebSocketServer
+RUN pip3 install numpy pyzmq kiwisolver pillow && echo "[global]" >> /etc/pip.conf && echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && pip3 install certifi tensorflow SimpleWebSocketServer
 
 # OpenCV
 RUN curl -L -k https://github.com/opencv/opencv/archive/4.0.0.zip > opencv.zip && curl -L -k https://github.com/opencv/opencv_contrib/archive/4.0.0.zip > opencv_contrib.zip && \
