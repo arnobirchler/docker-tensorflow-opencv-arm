@@ -29,11 +29,7 @@ RUN ln -s /usr/local/opt/python-3.5.2/bin/pydoc3.5 /usr/bin/pydoc3.5 && \
     ln -s /usr/local/opt/python-3.5.2/bin/python3.5 /usr/bin/python3.5 && \
     ln -s /usr/local/opt/python-3.5.2/bin/python3.5m /usr/bin/python3.5m && \
     ln -s /usr/local/opt/python-3.5.2/bin/pyvenv-3.5 /usr/bin/pyvenv-3.5 && \
-    ln -s /usr/local/opt/python-3.5.2/bin/pip3.5 /usr/bin/pip3.5 && \
-    ln -s /usr/bin/python3.5 /usr/bin/python3 && \
-    ln -s /usr/bin/python3.5 /usr/bin/python && \
-    ln -s /usr/bin/pip3.5 /usr/bin/pip3 && \
-    ln -s /usr/bin/pip3.5 /usr/bin/pip
+    ln -s /usr/local/opt/python-3.5.2/bin/pip3.5 /usr/bin/pip3.5
 
 ENV LD_LIBRARY_PATH="/usr/local/opt/python-3.5.2/lib"
 
