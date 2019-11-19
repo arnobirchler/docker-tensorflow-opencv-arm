@@ -4,7 +4,7 @@ FROM armhf/debian
 # Install dependancies
 RUN apt-get update && apt-get -q -y install --no-install-recommends curl unzip openssl ca-certificates \
 
-# Python3.5
+# build tools for python and cmake
 build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev \
 libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev \
 libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev pkg-config \
@@ -47,7 +47,7 @@ RUN curl -L -k https://cmake.org/files/v3.5/cmake-3.5.1.tar.gz > cmake-3.5.1.tar
 # Keras Tensorflow
 ENV CXXFLAGS="-std=c++11"
 ENV CFLAGS="-std=c99"
-RUN pip install numpy pyzmq && echo "[global]" >> /etc/pip.conf && echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && pip install certifi tensorflow SimpleWebSocketServer
+RUN pip install numpy pyzmq kiwisolver pillow && echo "[global]" >> /etc/pip.conf && echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && pip install certifi tensorflow SimpleWebSocketServer
 
 # OpenCV
 RUN curl -L -k https://github.com/opencv/opencv/archive/4.0.0.zip > opencv.zip && curl -L -k https://github.com/opencv/opencv_contrib/archive/4.0.0.zip > opencv_contrib.zip && \
@@ -80,22 +80,13 @@ RUN curl -L -k https://github.com/opencv/opencv/archive/4.0.0.zip > opencv.zip &
    
 # for protocbuf : autoconf automake libtool && \
 #Install C++ Protocol Compiler
-#RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.zip > protobuf.zip
-#RUN mkdir /opt/protobuf
-#RUN unzip protobuf.zip -d /opt/protobuf
-#RUN (cd /opt/protobuf-3.9.1 && ./configure)
-#RUN (cd /opt/protobuf-3.9.1 && make)
-#RUN (cd /opt/protobuf-3.9.1 && make check)
-#RUN (cd /opt/protobuf-3.9.1 && make install)
+RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1/protobuf-all-3.9.1.zip > protobuf.zip && mkdir /opt/protobuf && unzip protobuf.zip -d /opt/ && \
+    (cd /opt/protobuf-3.9.1 && ./configure && make && make check && make install && \
+     #Build python runtime library   
+    export LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):../src/.libs" && \
+    python3.5 setup.py build --cpp_implementation && python3.5 setup.py install --cpp_implementation && export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2 && ldconfig) &&
+    rm /opt/protobuf-3.9.1 -rf && rm protobuf.zip && \
 
-#Build python runtime library
-#RUN (cd /opt/protobuf-3.9.1/python && export LD_LIBRARY_PATH=../src/.libs)
-#RUN (cd /opt/protobuf-3.9.1/python && python setup.py build --cpp_implementation)
-#RUN (cd /opt/protobuf-3.9.1/python && python setup.py test --cpp_implementation)
-#RUN (cd /opt/protobuf-3.9.1/python && python setup.py install --cpp_implementation)
-#ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
-#ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2
-#RUN (cd /opt/protobuf-3.9.1/python && ldconfig)
 
 # models
 RUN mkdir /home/models
