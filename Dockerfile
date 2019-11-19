@@ -81,7 +81,7 @@ RUN curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.9.1
      #Build python runtime library   
     export LD_LIBRARY_PATH="$(LD_LIBRARY_PATH):../src/.libs" && \
     python3.5 setup.py build --cpp_implementation && python3.5 setup.py install --cpp_implementation && export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp && PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION_VERSION=2 && ldconfig) && \
-    rm /opt/protobuf-3.9.1 -rf && rm protobuf.zip && \
+    rm /opt/protobuf-3.9.1 -rf && rm protobuf.zip
 
 
 # models
