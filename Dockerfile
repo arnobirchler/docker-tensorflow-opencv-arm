@@ -117,7 +117,9 @@ ENV PYTHONPATH="${PYTHONPATH}:/home/models/research/slim"
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN rm opencv.zip && rm opencv_contrib.zip
 RUN rm Python-3.5.2.tgz
-RUN rm protobuf.zip
-
+RUN rm Python-3.5.2 -rf
+RUN rm cmake* -rf
+RUN rm /opt/* -rf
+#RUN rm protobuf.zip
 EXPOSE 8888
 EXPOSE 6006
